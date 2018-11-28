@@ -1,4 +1,6 @@
 var request = require('request')
+var jsdom = require('jsdom')
+var fs = require('fs')
 
 let talks = [];
 
@@ -15,4 +17,12 @@ exports.init = function (callback) {
 
 exports.listerSessions = function (callback) {
     callback(talks)
+}
+
+exports.getSpeakers = function (callback) {
+    request('http://www.breizhcamp.org/conference/speakers/', {}, function (err, res, body) {
+        let dom = new jsdom.JSDOM(body)
+        speakers = dom.window.document.querySelectorAll(".media-heading")
+        callback(speakers)
+    });
 }

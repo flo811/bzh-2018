@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/flo811/bzh-2018#readme",
   "dependencies": {
+    "jsdom": "^13.0.0",
     "request": "^2.88.0"
   }
 }

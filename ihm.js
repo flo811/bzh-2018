@@ -24,6 +24,11 @@ exports.setMenu = function () {
                     rl.question(text, saisieFunction)
                 })
                 break
+            case '3':
+                service.getSpeakers(function (speakers) {
+                    speakers.forEach(s => console.log("\n" + s))
+                })
+                break
             case '99':
                 rl.close();
                 break
@@ -33,7 +38,7 @@ exports.setMenu = function () {
         }
     }
 
-    let text = "*************************\n1. Rafraichir les données\n2. Lister les sessions\n99. Quitter\n-->"
+    let text = "*************************\n1. Rafraichir les données\n2. Lister les sessions\n3. Lister les présentateurs\n99. Quitter\n-->"
     service.init(function (nb) { })
     rl.question(text, saisieFunction)
 }
