@@ -1,0 +1,23 @@
+{
+  "name": "bzh-2018",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/flo811/bzh-2018.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/flo811/bzh-2018/issues"
+  },
+  "homepage": "https://github.com/flo811/bzh-2018#readme",
+  "dependencies": {
+    "request": "^2.88.0"
+  }
+}
