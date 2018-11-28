@@ -26,7 +26,10 @@ exports.setMenu = function () {
                 break
             case '3':
                 service.getSpeakers(function (speakers) {
-                    speakers.forEach(s => console.log("\n" + s))
+                    console.log()
+                    speakers.forEach(s => console.log(s.innerHTML))
+                    console.log()
+                    rl.question(text, saisieFunction)
                 })
                 break
             case '99':

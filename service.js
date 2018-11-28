@@ -20,9 +20,7 @@ exports.listerSessions = function (callback) {
 }
 
 exports.getSpeakers = function (callback) {
-    request('http://www.breizhcamp.org/conference/speakers/', {}, function (err, res, body) {
-        let dom = new jsdom.JSDOM(body)
-        speakers = dom.window.document.querySelectorAll(".media-heading")
-        callback(speakers)
+    request('https://2018.breizhcamp.org/conference/speakers/', {}, function (err, res, body) {
+        callback((new jsdom.JSDOM(body)).window.document.querySelectorAll(".media-heading"))
     });
 }
