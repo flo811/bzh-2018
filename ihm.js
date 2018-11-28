@@ -11,31 +11,29 @@ exports.setMenu = function () {
         switch (saisie) {
             case '1':
                 service.init(function (nb) {
-                    console.log("Rafraichissement des données...")
+                    console.log("\nRafraichissement des données...")
                     console.log('[init]', nb, 'sessions trouvées.')
                     console.log(" Données mises à jour !\n")
                     rl.question(text, saisieFunction)
                 })
                 break
             case '2':
-                console.log("Liste des sessions :\n")
-                //let sessions = service.listerSessions(callback)
-                //sessions.array.forEach(sess => console.log(sess))
-                rl.question(text, saisieFunction)
+                console.log("\nListe des sessions :\n")
+                service.listerSessions(function (talks) {
+                    talks.forEach(sess => console.log("Session name : " + sess.name + "\nSpeakers : " + sess.speakers + "\n"))
+                    rl.question(text, saisieFunction)
+                })
                 break
             case '99':
                 rl.close();
                 break
             default:
-                console.log("Relis la question !\n")
+                console.log("\nRelis la question !\n")
                 rl.question(text, saisieFunction)
         }
     }
 
-    let text = "*************************\n1. Rafraichir les données\n2. Lister les sessions\n99. Quitter\n"
+    let text = "*************************\n1. Rafraichir les données\n2. Lister les sessions\n99. Quitter\n-->"
+    service.init(function (nb) { })
     rl.question(text, saisieFunction)
 }
-
-
-
-

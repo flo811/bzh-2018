@@ -1,6 +1,6 @@
 var request = require('request')
 
-var talks = [];
+let talks = [];
 
 exports.init = function (callback) {
     request('http://2018.breizhcamp.org/json/talks.json', { json: true }, function (err, res, body) {
@@ -14,5 +14,5 @@ exports.init = function (callback) {
 };
 
 exports.listerSessions = function (callback) {
-    
+    callback(talks)
 }
