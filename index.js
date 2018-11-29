@@ -1,4 +1,4 @@
-var ihm = require('./ihm');
+const ihm = require('./ihm');
 
 console.log('** Application BreizhCamp 2018 **');
-ihm.setMenu();
+ihm.menu.launch();

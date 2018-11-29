@@ -1,26 +1,38 @@
-var request = require('request')
-var jsdom = require('jsdom')
-var fs = require('fs')
+const request = require('request-promise-native')
+const jsdom = require('jsdom')
+const fs = require('fs')
 
-let talks = [];
+//module.exports = class
 
-exports.init = function (callback) {
-    request('http://2018.breizhcamp.org/json/talks.json', { json: true }, function (err, res, body) {
-        talks = body
-
-        request('http://2018.breizhcamp.org/json/others.json', { json: true }, function (err, res, body) {
-            talks.concat(body)
-            callback(talks.length)
-        });
-    });
-};
-
-exports.listerSessions = function (callback) {
-    callback(talks)
-}
-
-exports.getSpeakers = function (callback) {
-    request('https://2018.breizhcamp.org/conference/speakers/', {}, function (err, res, body) {
-        callback((new jsdom.JSDOM(body)).window.document.querySelectorAll(".media-heading"))
-    });
+exports.instance = new class Service {
+    constructor() {
+        this.talks = []
+        this.promise1 = request('http://2018.breizhcamp.org/json/talks.json', { json: true })
+        this.promise2 = request('http://2018.breizhcamp.org/json/others.json', { json: true })
+    }
+    async init() {
+        return Promise.all([this.promise1, this.promise2])
+            .then(tabs => {
+                this.talks = []
+                tabs.forEach(tab => this.talks = this.talks.concat(tab))
+                return this.talks.length
+            })
+    }
+    async getSessions() {
+        if (this.talks.length == 0) {
+            return this.init().then(() => { return this.talks })
+        } else {
+            return Promise.resolve(this.talks)
+        }
+    }
+    getSpeakers() {
+        return request('https://2018.breizhcamp.org/conference/speakers/')
+            .then(body => (new jsdom.JSDOM(body)).window.document.querySelectorAll(".media-heading"))
+            .then(speakers => Array.from(speakers).map(speaker => speaker.innerHTML))
+    }
+    getSessionsByWord(word) {
+        let answer = []
+        this.talks.filter(sess => sess.name.includes(word)).forEach(sess => answer.push(sess))
+        return answer
+    }
 }

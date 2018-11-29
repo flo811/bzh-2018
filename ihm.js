@@ -1,47 +1,82 @@
-let service = require('./service');
-let readline = require('readline');
+const service = require('./service');
+const readline = require('readline');
 
-exports.setMenu = function () {
-    let rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout
-    });
+exports.menu = new class Menu {
+    constructor() {
+        this.rl = readline.createInterface({
+            input: process.stdin,
+            output: process.stdout
+        });
+        this.text = "*************************\n1. Rafraichir les données\n2. Lister les sessions\n3. Lister les présentateurs\n4. Rechercher une session\n99. Quitter\n-->"
+        service.instance.init()
+    }
 
-    let saisieFunction = function (saisie) {
+    launch() { this.rl.question(this.text, this.saisieFunction.bind(this)) }
+
+    saisieFunction(saisie) {
         switch (saisie) {
             case '1':
-                service.init(function (nb) {
+                service.instance.init().then(nb => {
                     console.log("\nRafraichissement des données...")
-                    console.log('[init]', nb, 'sessions trouvées.')
+                    console.log(`[init] ${nb} sessions trouvées.`)
                     console.log(" Données mises à jour !\n")
-                    rl.question(text, saisieFunction)
-                })
+                    this.rl.question(this.text, this.saisieFunction.bind(this))
+                }).catch(err => console.log(err))
                 break
             case '2':
                 console.log("\nListe des sessions :\n")
-                service.listerSessions(function (talks) {
-                    talks.forEach(sess => console.log("Session name : " + sess.name + "\nSpeakers : " + sess.speakers + "\n"))
-                    rl.question(text, saisieFunction)
-                })
+                service.instance.getSessions()
+                    .then(sessions => sessions.forEach(sess => console.log(`Session name : ${sess.name}\nSpeakers : ${sess.speakers} \n`)))
+                    .then(() => this.rl.question(this.text, this.saisieFunction.bind(this)))
                 break
             case '3':
-                service.getSpeakers(function (speakers) {
+                service.instance.getSpeakers().then(speakers => {
                     console.log()
-                    speakers.forEach(s => console.log(s.innerHTML))
-                    console.log()
-                    rl.question(text, saisieFunction)
-                })
+                    speakers.forEach(s => console.log(s))
+                    this.rl.question("\n" + this.text, this.saisieFunction.bind(this))
+                }).catch(err => console.log(err))
+                break
+            case '4':
+                this.recherche('1')
                 break
             case '99':
-                rl.close();
+                this.rl.close();
                 break
             default:
                 console.log("\nRelis la question !\n")
-                rl.question(text, saisieFunction)
+                this.rl.question(this.text, this.saisieFunction.bind(this))
         }
     }
 
-    let text = "*************************\n1. Rafraichir les données\n2. Lister les sessions\n3. Lister les présentateurs\n99. Quitter\n-->"
-    service.init(function (nb) { })
-    rl.question(text, saisieFunction)
+    recherche(saisie) {
+        switch (saisie) {
+            case '1':
+                let i = 1
+                this.rl.question("\nQuel mot recherchez-vous ?\n-->",
+                    word => {
+                        console.log()
+                        let sessList = service.instance.getSessionsByWord(word)
+                        sessList.forEach(sess => console.log(i++ + ". " + sess.name))
+                        console.log(i++ + ". Refaire une nouvelle recherche\n" + i + ". Retour au menu principal")
+                        this.rl.question("-->", i => {
+                            if ((i < 1) || (i > sessList.length + 2) || !(i instanceof Number)) {
+                                this.recherche(-1)
+                            } else if (i == (sessList.length + 1)) {
+                                this.recherche('1')
+                            } else if (i == (sessList.length + 2)) {
+                                this.rl.question(this.text, this.saisieFunction.bind(this))
+                            } else {
+                                console.log("\n" + sessList[i - 1].name + "\n" + sessList[i - 1].description)
+                                this.recherche('1')
+                            }
+                        })
+                    })
+                break
+            case '2':
+                this.rl.question("\n" + this.text, this.saisieFunction.bind(this))
+            default:
+                console.log("\nRelis la question !")
+                this.rl.question("\n1. Refaire une nouvelle recherche\n2. Retour au menu principal\n-->", this.recherche.bind(this))
+        }
+    }
 }
